@@ -1,0 +1,16 @@
+FROM node:20-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files first for caching
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Expose Vite dev port
+EXPOSE 5173
+
+# Default command (can be overridden in compose)
+CMD ["npm", "run", "dev", "--", "--host"]

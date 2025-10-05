@@ -1,0 +1,16 @@
+FROM node:20-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install the serve package globally
+RUN npm install -g serve
+
+# Copy the build output (dist folder)
+COPY dist ./dist
+
+# Expose the port Vite uses
+EXPOSE 5173
+
+# Run the static server on container start
+CMD ["serve", "-s", "dist", "-l", "5173"]

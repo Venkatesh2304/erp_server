@@ -1,0 +1,63 @@
+version: "3.8"
+
+services:
+  gt_backend:
+    image: erp-backend:latest   # prebuilt image
+    container_name: gt_backend
+    command: sh -c "python manage.py migrate && gunicorn billingv3.wsgi:application -c gunicorn_config.py"
+    environment:
+      - APP_USER=a1
+      - USER=a1
+    ports:
+      - "8080:8000"
+    depends_on:
+      - db
+
+  urban_backend:
+    image: erp-backend:latest   # same image reused
+    container_name: urban_backend
+    command: sh -c "python manage.py migrate && gunicorn billingv3.wsgi:application -c gunicorn_config.py"
+    environment:
+      - APP_USER=lakme_urban
+      - USER=user
+    ports:
+      - "8081:8000"
+    depends_on:
+      - db
+
+  rural_backend:
+    image: erp-backend:latest   # same image reused
+    container_name: rural_backend
+    command: sh -c "python manage.py migrate && gunicorn billingv3.wsgi:application -c gunicorn_config.py"
+    environment:
+      - APP_USER=lakme_rural
+      - USER=user
+    ports:
+      - "8082:8000"
+    depends_on:
+      - db
+    
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Ven2004
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+  frontend:
+    build:
+      context: ./billing_refine
+      dockerfile: Dockerfile.prod
+    container_name: frontend
+    ports:
+      - "8000:5173"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
